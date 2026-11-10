@@ -1,0 +1,28 @@
+
+# Ambiente virtual
+venv/
+.venv/
+
+# Arquivos Python
+__pycache__/
+*.py[cod]
+
+# Banco de dados
+*.db
+*.sqlite
+*.sqlite3
+
+# Arquivos enviados
+uploads/*
+
+# Configurações locais
+.env
+
+# Configurações de editores
+.vscode/
+.idea/
+
+# Relatórios de testes
+.pytest_cache/
+.coverage
+htmlcov/
