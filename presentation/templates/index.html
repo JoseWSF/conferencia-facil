@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conferência Fácil</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f5f8;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: white;
+            width: 90%;
+            max-width: 420px;
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        h1 {
+            color: #174a83;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-top: 18px;
+            margin-bottom: 6px;
+        }
+
+        input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 13px;
+            background-color: #174a83;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Conferência Fácil</h1>
+
+        <p>
+            Acesse o sistema para facilitar a conferência
+            de notas fiscais e produtos da livraria.
+        </p>
+
+        <form>
+            <label for="usuario">Usuário</label>
+            <input type="text" id="usuario" name="usuario"
+                   placeholder="Digite seu usuário">
+
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha"
+                   placeholder="Digite sua senha">
+
+            <button type="button" onclick="window.location.href='/importacao'">
+    Entrar
+</button>
+        </form>
+    </main>
+</body>
+</html>

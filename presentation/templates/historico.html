@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de importações - Conferência Fácil</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f5f8;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background-color: white;
+            max-width: 850px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #174a83;
+            text-align: center;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #174a83;
+            color: white;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f3f5f8;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 20px;
+            background-color: #174a83;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .ver-detalhes {
+            display: inline-block;
+            margin-top: 0;
+            padding: 8px 12px;
+            background-color: #174a83;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+         .ver-detalhes:hover {
+    background-color: #10365f;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Histórico de importações</h1>
+
+        <p>
+            Consulte as notas fiscais que já foram
+            importadas no Conferência Fácil.
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nota fiscal</th>
+                    <th>Fornecedor</th>
+                    <th>Total de produtos</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for nota in notas %}
+                <tr>
+                    <td>{{ nota.id }}</td>
+                    <td>{{ nota.numero }}</td>
+                    <td>{{ nota.fornecedor }}</td>
+                    <td>{{ nota.total_produtos }}</td>
+                    <td>
+                        <a class="ver-detalhes" href="/nota/{{ nota.id }}">
+                            Ver detalhes
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">
+                        Nenhuma nota fiscal cadastrada.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/importacao">Nova importação</a>
+    </main>
+</body>
+</html>

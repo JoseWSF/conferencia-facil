@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da nota - Conferência Fácil</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f5f8;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background-color: white;
+            max-width: 850px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #174a83;
+            text-align: center;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #174a83;
+            color: white;
+        }
+
+        .pendente {
+            color: #8a5600;
+            font-weight: bold;
+        }
+
+        .sem-pedido {
+            color: #256b40;
+            font-weight: bold;
+        }
+
+        .alerta {
+            background-color: #fff3cd;
+            border: 1px solid #e5c56b;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 20px;
+            background-color: #174a83;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Detalhes da nota fiscal</h1>
+
+        <p><strong>Nota fiscal:</strong> {{ nota.numero }}</p>
+        <p><strong>Fornecedor:</strong> {{ nota.fornecedor }}</p>
+        <p><strong>Total de produtos:</strong> {{ nota.produtos | length }}</p>
+
+        {% set conferencia = namespace(tem_correspondencia=false) %}
+
+        {% for produto in nota.produtos %}
+            {% if produto.situacao.startswith('Possível correspondência') %}
+                {% set conferencia.tem_correspondencia = true %}
+            {% endif %}
+        {% endfor %}
+
+        {% if conferencia.tem_correspondencia %}
+        <div class="alerta" role="alert">
+            <strong>Atenção!</strong>
+            Esta nota possui possíveis correspondências
+            com pedidos ou ordens de serviço.
+        </div>
+        {% endif %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Código</th>
+                    <th>Quantidade</th>
+                    <th>Situação da conferência</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for produto in nota.produtos %}
+                <tr>
+                    <td>{{ produto.descricao }}</td>
+                    <td>{{ produto.codigo }}</td>
+                    <td>
+                        {{ produto.quantidade | int if produto.quantidade == produto.quantidade | int else produto.quantidade }}
+                    </td>
+                    <td class="{{ 'pendente' if produto.situacao.startswith('Possível') else 'sem-pedido' }}">
+                        {{ produto.situacao }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/historico">Voltar ao histórico</a>
+    </main>
+</body>
+</html>

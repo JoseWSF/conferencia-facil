@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe">
+    <NFe>
+        <infNFe>
+            <ide>
+                <nNF>4582</nNF>
+            </ide>
+
+            <emit>
+                <xNome>Editora Exemplo</xNome>
+            </emit>
+
+            <det nItem="1">
+                <prod>
+                    <cProd>001</cProd>
+                    <xProd>Livro A</xProd>
+                    <qCom>5</qCom>
+                </prod>
+            </det>
+
+            <det nItem="2">
+                <prod>
+                    <cProd>002</cProd>
+                    <xProd>Livro B</xProd>
+                    <qCom>3</qCom>
+                </prod>
+            </det>
+        </infNFe>
+    </NFe>
+</nfeProc>
