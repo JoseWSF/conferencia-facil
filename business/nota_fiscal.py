@@ -23,8 +23,28 @@ def ler_nota_fiscal(caminho_arquivo):
             "quantidade": quantidade.text if quantidade is not None else "0"
         })
 
-    return {
+    dados_nota = {
         "numero": numero.text if numero is not None else "",
         "fornecedor": fornecedor.text if fornecedor is not None else "",
         "produtos": produtos
     }
+
+    if not dados_nota["numero"] or not dados_nota["fornecedor"]:
+        raise ValueError("Número da nota ou fornecedor não informado.")
+
+    if not dados_nota["produtos"]:
+        raise ValueError("A nota fiscal não possui produtos.")
+
+    for produto in dados_nota["produtos"]:
+        if not produto["codigo"] or not produto["descricao"]:
+            raise ValueError("Produto com informações obrigatórias ausentes.")
+
+        try:
+            quantidade = float(produto["quantidade"])
+        except (ValueError, TypeError):
+            raise ValueError("Quantidade inválida no XML.")
+
+        if quantidade <= 0:
+            raise ValueError("A quantidade do produto deve ser maior que zero.")
+
+    return dados_nota

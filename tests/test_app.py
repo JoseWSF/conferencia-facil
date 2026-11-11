@@ -265,3 +265,76 @@ def test_produtos_salvos_com_situacao(tmp_path, monkeypatch):
     assert produtos[1][1] == "Livro B"
     assert produtos[1][2] == 3
     assert produtos[1][3] == "Nenhuma correspondência encontrada"
+
+def test_xml_sem_dados_obrigatorios(tmp_path):
+    caminho = tmp_path / "nota_incompleta.xml"
+
+    caminho.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+        <nfeProc xmlns="http://www.portalfiscal.inf.br/nfe">
+            <NFe>
+                <infNFe>
+                    <ide>
+                        <nNF>4582</nNF>
+                    </ide>
+                    <emit>
+                        <xNome></xNome>
+                    </emit>
+                </infNFe>
+            </NFe>
+        </nfeProc>
+        """,
+        encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError):
+        ler_nota_fiscal(caminho)
+
+def test_importacao_xml_incompleto(tmp_path, monkeypatch):
+    caminho_banco = tmp_path / "teste_incompleto.db"
+
+    monkeypatch.setattr(
+        database,
+        "CAMINHO_BANCO",
+        caminho_banco
+    )
+
+    criar_banco()
+
+    xml_incompleto = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <nfeProc xmlns="http://www.portalfiscal.inf.br/nfe">
+        <NFe>
+            <infNFe>
+                <ide>
+                    <nNF>4582</nNF>
+                </ide>
+                <emit>
+                    <xNome></xNome>
+                </emit>
+            </infNFe>
+        </NFe>
+    </nfeProc>
+    """
+
+    cliente = app.test_client()
+
+    resposta = cliente.post(
+        "/resultado",
+        data={
+            "arquivo": (
+                BytesIO(xml_incompleto),
+                "nota_incompleta.xml"
+            )
+        },
+        content_type="multipart/form-data"
+    )
+
+    assert resposta.status_code == 400
+    assert b"N\xc3\xa3o foi poss\xc3\xadvel ler o arquivo XML" in resposta.data
+
+    with database.conectar() as conexao:
+        total_notas = conexao.execute(
+            "SELECT COUNT(*) FROM notas_fiscais"
+        ).fetchone()[0]
+
+    assert total_notas == 0
