@@ -1,15 +1,7 @@
 # Pedidos e ordens de serviço fictícios para teste
 pedidos_os = [
-    {
-        "numero": "125",
-        "tipo": "Pedido",
-        "codigo_produto": "001"
-    },
-    {
-        "numero": "230",
-        "tipo": "OS",
-        "codigo_produto": "003"
-    }
+    {"numero": "125", "tipo": "Pedido", "codigo_produto": "001"},
+    {"numero": "230", "tipo": "OS", "codigo_produto": "003"}
 ]
 
 

@@ -1,7 +1,14 @@
 import sqlite3
 from pathlib import Path
 
-CAMINHO_BANCO = Path(__file__).resolve().parent / "conferencia.db"
+import os
+
+CAMINHO_BANCO = Path(
+    os.environ.get(
+        "CONFERENCIA_DB",
+        Path(__file__).resolve().parent / "conferencia.db"
+    )
+)
 
 
 def conectar():

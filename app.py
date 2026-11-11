@@ -50,7 +50,7 @@ def resultado():
             except Exception:
                 return "Não foi possível ler o arquivo XML.", 400
 
-                nota["produtos"] = conferir_produtos(nota["produtos"])
+            nota["produtos"] = conferir_produtos(nota["produtos"])
 
         if nota_ja_existe(nota["numero"], nota["fornecedor"]):
             return render_template("duplicada.html"), 409

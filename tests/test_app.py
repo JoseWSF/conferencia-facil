@@ -1,6 +1,10 @@
 from pathlib import Path
 from business.nota_fiscal import ler_nota_fiscal
 from business.conferencia import conferir_produtos
+from app import app
+from io import BytesIO
+import data.database as database
+from data.database import criar_banco
 import pytest
 import xml.etree.ElementTree as ET
 
@@ -60,3 +64,204 @@ def test_xml_invalido(tmp_path):
 
     with pytest.raises(ET.ParseError):
         ler_nota_fiscal(caminho)
+
+def test_pagina_inicial():
+    app.config["TESTING"] = True
+
+    cliente = app.test_client()
+    resposta = cliente.get("/")
+
+    assert resposta.status_code == 200
+
+def test_pagina_importacao():
+    cliente = app.test_client()
+
+    resposta = cliente.get("/importacao")
+
+    assert resposta.status_code == 200
+
+
+def test_pagina_historico():
+    cliente = app.test_client()
+
+    resposta = cliente.get("/historico")
+
+    assert resposta.status_code == 200
+
+
+def test_nota_inexistente():
+    cliente = app.test_client()
+
+    resposta = cliente.get("/nota/999999")
+
+    assert resposta.status_code == 404
+
+def test_importacao_arquivo_invalido():
+    cliente = app.test_client()
+
+    resposta = cliente.post(
+        "/resultado",
+        data={
+            "arquivo": (
+                BytesIO(b"conteudo de teste"),
+                "arquivo.txt"
+            )
+        },
+        content_type="multipart/form-data"
+    )
+
+    assert resposta.status_code == 400
+    assert b"Selecione um arquivo XML" in resposta.data
+
+def test_banco_temporario(tmp_path, monkeypatch):
+    caminho_teste = tmp_path / "teste_conferencia.db"
+
+    monkeypatch.setattr(
+        database,
+        "CAMINHO_BANCO",
+        caminho_teste
+    )
+
+    criar_banco()
+
+    with database.conectar() as conexao:
+        tabelas = conexao.execute("""
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+        """).fetchall()
+
+    nomes_tabelas = [tabela[0] for tabela in tabelas]
+
+    assert "notas_fiscais" in nomes_tabelas
+    assert "itens_nota" in nomes_tabelas
+
+def test_importacao_xml_completa(tmp_path, monkeypatch):
+    caminho_banco = tmp_path / "teste_importacao.db"
+
+    monkeypatch.setattr(
+        database,
+        "CAMINHO_BANCO",
+        caminho_banco
+    )
+
+    criar_banco()
+
+    caminho_xml = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "nota_fiscal_4582.xml"
+    )
+
+    cliente = app.test_client()
+
+    with open(caminho_xml, "rb") as arquivo:
+        resposta = cliente.post(
+            "/resultado",
+            data={"arquivo": (arquivo, "nota_fiscal_4582.xml")},
+            content_type="multipart/form-data"
+        )
+
+    assert resposta.status_code == 200
+
+    with database.conectar() as conexao:
+        total_notas = conexao.execute(
+            "SELECT COUNT(*) FROM notas_fiscais"
+        ).fetchone()[0]
+
+        total_produtos = conexao.execute(
+            "SELECT COUNT(*) FROM itens_nota"
+        ).fetchone()[0]
+
+    assert total_notas == 1
+    assert total_produtos == 2
+
+def test_nota_duplicada(tmp_path, monkeypatch):
+    caminho_banco = tmp_path / "teste_duplicada.db"
+
+    monkeypatch.setattr(
+        database,
+        "CAMINHO_BANCO",
+        caminho_banco
+    )
+
+    criar_banco()
+
+    caminho_xml = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "nota_fiscal_4582.xml"
+    )
+
+    cliente = app.test_client()
+
+    with open(caminho_xml, "rb") as arquivo:
+        primeira = cliente.post(
+            "/resultado",
+            data={"arquivo": (arquivo, "nota_fiscal_4582.xml")},
+            content_type="multipart/form-data"
+        )
+
+    with open(caminho_xml, "rb") as arquivo:
+        segunda = cliente.post(
+            "/resultado",
+            data={"arquivo": (arquivo, "nota_fiscal_4582.xml")},
+            content_type="multipart/form-data"
+        )
+
+    assert primeira.status_code == 200
+    assert segunda.status_code == 409
+
+    with database.conectar() as conexao:
+        total_notas = conexao.execute(
+            "SELECT COUNT(*) FROM notas_fiscais"
+        ).fetchone()[0]
+
+    assert total_notas == 1
+
+def test_produtos_salvos_com_situacao(tmp_path, monkeypatch):
+    caminho_banco = tmp_path / "teste_produtos.db"
+
+    monkeypatch.setattr(
+        database,
+        "CAMINHO_BANCO",
+        caminho_banco
+    )
+
+    criar_banco()
+
+    caminho_xml = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "nota_fiscal_4582.xml"
+    )
+
+    cliente = app.test_client()
+
+    with open(caminho_xml, "rb") as arquivo:
+        resposta = cliente.post(
+            "/resultado",
+            data={"arquivo": (arquivo, "nota_fiscal_4582.xml")},
+            content_type="multipart/form-data"
+        )
+
+    assert resposta.status_code == 200
+
+    with database.conectar() as conexao:
+        produtos = conexao.execute("""
+            SELECT codigo, descricao, quantidade, situacao
+            FROM itens_nota
+            ORDER BY codigo
+        """).fetchall()
+
+    assert len(produtos) == 2
+
+    assert produtos[0][0] == "001"
+    assert produtos[0][1] == "Livro A"
+    assert produtos[0][2] == 5
+    assert produtos[0][3] == "Possível correspondência — Pedido 125"
+
+    assert produtos[1][0] == "002"
+    assert produtos[1][1] == "Livro B"
+    assert produtos[1][2] == 3
+    assert produtos[1][3] == "Nenhuma correspondência encontrada"
