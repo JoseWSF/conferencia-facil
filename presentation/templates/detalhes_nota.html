@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -65,6 +66,7 @@
             padding: 15px;
             border-radius: 5px;
             margin-top: 20px;
+            color: #333;
         }
 
         a {
@@ -76,11 +78,105 @@
             text-decoration: none;
             border-radius: 5px;
         }
+
+        .botao-contraste {
+            display: block;
+            margin-left: auto;
+            padding: 12px 18px;
+            background-color: #174a83;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        a:focus-visible,
+        .botao-contraste:focus-visible {
+            outline: 3px solid #e09a00;
+            outline-offset: 3px;
+        }
+
+        /* Modo de alto contraste */
+        body.alto-contraste {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .alto-contraste .container {
+            background-color: #000;
+            border: 2px solid #fff;
+            box-shadow: none;
+        }
+
+        .alto-contraste h1 {
+            color: #ffeb3b;
+        }
+
+        .alto-contraste p {
+            color: #fff;
+        }
+
+        .alto-contraste th {
+            background-color: #222;
+            color: #ffeb3b;
+        }
+
+        .alto-contraste th,
+        .alto-contraste td {
+            border: 1px solid #fff;
+        }
+
+        .alto-contraste .pendente {
+            color: #ffeb3b;
+        }
+
+        .alto-contraste .sem-pedido {
+            color: #80ff9c;
+        }
+
+        .alto-contraste .alerta {
+            background-color: #222;
+            border: 2px solid #ffeb3b;
+            color: #fff;
+        }
+
+        .alto-contraste a,
+        .alto-contraste .botao-contraste {
+            background-color: #ffeb3b;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .alto-contraste a:focus-visible,
+        .alto-contraste .botao-contraste:focus-visible {
+            outline-color: #fff;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+                overflow-x: auto;
+            }
+
+            body {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <main class="container">
+        <button
+            type="button"
+            class="botao-contraste"
+            id="botao-contraste"
+            aria-pressed="false"
+            onclick="alternarContraste()">
+            Ativar alto contraste
+        </button>
+
         <h1>Detalhes da nota fiscal</h1>
 
         <p><strong>Nota fiscal:</strong> {{ nota.numero }}</p>
@@ -106,10 +202,10 @@
         <table>
             <thead>
                 <tr>
-                    <th>Produto</th>
-                    <th>Código</th>
-                    <th>Quantidade</th>
-                    <th>Situação da conferência</th>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Código</th>
+                    <th scope="col">Quantidade</th>
+                    <th scope="col">Situação da conferência</th>
                 </tr>
             </thead>
 
@@ -131,5 +227,18 @@
 
         <a href="/historico">Voltar ao histórico</a>
     </main>
+
+    <script>
+        function alternarContraste() {
+            const ativado = document.body.classList.toggle("alto-contraste");
+            const botao = document.getElementById("botao-contraste");
+
+            botao.textContent = ativado
+                ? "Desativar alto contraste"
+                : "Ativar alto contraste";
+
+            botao.setAttribute("aria-pressed", String(ativado));
+        }
+    </script>
 </body>
 </html>

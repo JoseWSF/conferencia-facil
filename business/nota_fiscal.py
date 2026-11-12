@@ -1,3 +1,4 @@
+
 import xml.etree.ElementTree as ET
 
 
@@ -29,8 +30,11 @@ def ler_nota_fiscal(caminho_arquivo):
         "produtos": produtos
     }
 
-    if not dados_nota["numero"] or not dados_nota["fornecedor"]:
-        raise ValueError("Número da nota ou fornecedor não informado.")
+    if not dados_nota["numero"] or not dados_nota["numero"].strip():
+        raise ValueError("Número da nota não informado.")
+
+    if not dados_nota["fornecedor"] or not dados_nota["fornecedor"].strip():
+        raise ValueError("Fornecedor não informado.")
 
     if not dados_nota["produtos"]:
         raise ValueError("A nota fiscal não possui produtos.")

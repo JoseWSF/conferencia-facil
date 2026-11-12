@@ -338,3 +338,35 @@ def test_importacao_xml_incompleto(tmp_path, monkeypatch):
         ).fetchone()[0]
 
     assert total_notas == 0
+
+
+def test_xml_fornecedor_apenas_espacos(tmp_path):
+    caminho = tmp_path / "nota_fornecedor_invalido.xml"
+
+    caminho.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+        <nfeProc xmlns="http://www.portalfiscal.inf.br/nfe">
+            <NFe>
+                <infNFe>
+                    <ide>
+                        <nNF>4583</nNF>
+                    </ide>
+                    <emit>
+                        <xNome>   </xNome>
+                    </emit>
+                    <det nItem="1">
+                        <prod>
+                            <cProd>001</cProd>
+                            <xProd>Livro A</xProd>
+                            <qCom>2</qCom>
+                        </prod>
+                    </det>
+                </infNFe>
+            </NFe>
+        </nfeProc>
+        """,
+        encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError):
+        ler_nota_fiscal(caminho)
