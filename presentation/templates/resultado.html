@@ -70,6 +70,18 @@
             text-decoration: none;
             border-radius: 5px;
         }
+
+         .aviso-eris {
+             background-color: #eaf3ff;
+             border: 1px solid #174a83;
+             border-left: 5px solid #174a83;
+             padding: 15px;
+             border-radius: 5px;
+             margin-top: 25px;
+             color: #24364b;
+             line-height: 1.5;
+}
+
     </style>
 </head>
 
@@ -102,13 +114,24 @@
     <tr>
         <td>{{ produto.descricao }}</td>
         <td>{{ produto.codigo }}</td>
-        <td>{{ produto.quantidade }}</td>
-        <td>Aguardando conferência</td>
+        <td>{{ produto.quantidade }}</td>        
+        <td class="{{ 'pendente' if produto.situacao.startswith('Possível') else 'sem-pedido' }}">
+            {{ produto.situacao }}
+        </td>
 
     </tr>
     {% endfor %}
 </tbody>
         </table>
+
+<div class="aviso-eris" role="note">
+    <strong>Importante:</strong>
+    O Conferência Fácil auxilia na identificação de possíveis
+    correspondências com pedidos e ordens de serviço.
+    Após a conferência, o lançamento e a validação das
+    informações fiscais devem ser realizados no sistema ERIS,
+    utilizado pela empresa.
+</div>
 
         <a href="/importacao">Nova importação</a>
     </main>
