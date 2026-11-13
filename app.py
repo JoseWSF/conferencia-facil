@@ -4,8 +4,11 @@ from business.conferencia import conferir_produtos
 from data.models import salvar_nota, nota_ja_existe, listar_notas, buscar_nota_por_id
 from pathlib import Path
 import tempfile
+from data.database import criar_banco
 
 app = Flask(__name__, template_folder="presentation/templates")
+# Cria as tabelas do banco de dados, caso não existam
+criar_banco()
 
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
 
